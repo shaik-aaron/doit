@@ -55,9 +55,12 @@ export default function SideBar() {
           <p className="pl-7 tracking-[2.4px] mb-5 font-primary text-md-grey font-bold">
             ALL BOARDS (3)
           </p>
-          {boards.map((board: string) => {
+          {boards.map((board: string, i: number) => {
             return (
-              <div className="flex gap-4 py-4 pl-7 rounded-r-full cursor-pointer text-md-grey hover:text-white hover:bg-main-purple">
+              <div
+                key={i}
+                className="flex gap-4 py-4 pl-7 rounded-r-full cursor-pointer text-md-grey hover:text-white hover:bg-main-purple"
+              >
                 <Table />
                 <p className="text-base dark:text-base font-primary font-bold">
                   {board}
@@ -89,7 +92,7 @@ export default function SideBar() {
               </p>
               {columns.map((column: any, i: number) => {
                 return (
-                  <div className="flex w-full items-center gap-4">
+                  <div key={i} className="flex w-full items-center gap-4">
                     <Input
                       className="border border-md-grey"
                       onChange={(e) => handleChange(i, e.target.value)}
