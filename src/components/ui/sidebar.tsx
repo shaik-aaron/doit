@@ -3,14 +3,23 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { addBoard, addColumn } from "@/lib/indexedDB";
+import { Board, SideBarProps } from "@/types";
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import { EyeOff, MoonStar, Sun, Table, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { uuid } from "uuidv4";
 
-export default function SideBar() {
+export default function SideBar({
+  db,
+  setTrigger,
+  boards,
+  selectedBoard,
+  setSelectedBoard,
+}: SideBarProps) {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
-  const [columns, setColumns] = useState<any>([
+  const [columns, setColumns] = useState([
     {
       id: 0,
       name: "To do",
@@ -21,7 +30,7 @@ export default function SideBar() {
     },
   ]);
   const [boardName, setBoardName] = useState<string>("");
-  const [boards, setBoards] = useState<string[]>([]);
+  const [open, setOpen] = useState<boolean>(false);
 
   function handleChange(index: number, val: string) {
     const temp = columns.map((column: any, i: number) => {
@@ -42,6 +51,31 @@ export default function SideBar() {
     }
   }, [isDarkMode]);
 
+  async function addNewBoard() {
+    if (db) {
+      try {
+        const newBoard = { id: uuid(), boardName: boardName };
+        const board = await addBoard(db, newBoard);
+
+        for (let i = 0; i < columns.length; i++) {
+          const column = columns[i];
+          await addColumn(db, {
+            id: uuid(),
+            boardId: board.id,
+            columnName: column.name,
+          });
+        }
+
+        setTrigger((prev) => !prev);
+        setSelectedBoard(board);
+        setOpen(false);
+      } catch (error) {
+        console.error("Error adding new board and columns:", error);
+        // Handle error (e.g., show error message)
+      }
+    }
+  }
+
   return (
     <div className="pt-7 pr-6 min-w-[300px] flex flex-col justify-between bg-white h-full border-r border-[#E4EBFA] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] dark:bg-dark-grey dark:border-lines-dark">
       <div>
@@ -53,22 +87,27 @@ export default function SideBar() {
         </div>
         <div className="mt-14">
           <p className="pl-7 tracking-[2.4px] mb-5 font-primary text-md-grey font-bold">
-            ALL BOARDS (3)
+            ALL BOARDS ({boards.length})
           </p>
-          {boards.map((board: string, i: number) => {
+          {boards.map((board: Board, i: number) => {
             return (
               <div
+                onClick={() => setSelectedBoard(board)}
                 key={i}
-                className="flex gap-4 py-4 pl-7 rounded-r-full cursor-pointer text-md-grey hover:text-white hover:bg-main-purple"
+                className={`flex gap-4 py-4 pl-7 rounded-r-full cursor-pointer text-md-grey ${
+                  board.id === selectedBoard?.id
+                    ? "text-white bg-main-purple"
+                    : ""
+                }`}
               >
                 <Table />
                 <p className="text-base dark:text-base font-primary font-bold">
-                  {board}
+                  {board.boardName}
                 </p>
               </div>
             );
           })}
-          <Dialog>
+          <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger className="w-full">
               <div className="flex gap-4 py-4 pl-7 rounded-r-full cursor-pointer text-main-purple hover:text-white hover:bg-main-purple">
                 <Table />
@@ -117,7 +156,7 @@ export default function SideBar() {
                 + Add New Column
               </Button>
               <Button
-                onClick={() => setBoards((prev) => [...prev, boardName])}
+                onClick={addNewBoard}
                 className="rounded-2xl hover:bg-main-purple bg-main-purple text-white text-xs font-bold font-primary"
               >
                 Create New Board

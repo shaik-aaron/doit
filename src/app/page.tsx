@@ -1,18 +1,52 @@
+"use client";
 import { Button } from "@/components/ui/button";
-import NavBar from "./components/navbar";
-import SideBar from "./components/sidebar";
+import NavBar from "../components/ui/navbar";
+import SideBar from "../components/ui/sidebar";
+import { useEffect, useState } from "react";
+import { getAllBoards, getAllColumns, openDB } from "@/lib/indexedDB";
+import { Board, Column } from "@/types";
+import MainBoard from "@/components/ui/board";
 
 export default function Home() {
+  const [db, setDb] = useState<IDBDatabase | null>(null);
+  const [boards, setBoards] = useState<Board[]>([]);
+  const [trigger, setTrigger] = useState<boolean>(false);
+  const [board, setBoard] = useState<Board>();
+
+  const [columns, setColumns] = useState<Column[]>([]);
+
+  useEffect(() => {
+    if (board) {
+      getAllColumns(db, board.id).then((data) => setColumns(data));
+    }
+  }, [board, trigger]);
+
+  useEffect(() => {
+    openDB()
+      .then((data) => {
+        setDb(data);
+        getAllBoards(data).then((res) => setBoards(res));
+      })
+      .catch((error) => console.error("Error opening database:", error));
+  }, [trigger]);
+
   return (
     <div className="bg-light-grey flex w-screen h-screen">
-      <SideBar />
+      <SideBar
+        db={db}
+        setTrigger={setTrigger}
+        boards={boards}
+        selectedBoard={board}
+        setSelectedBoard={setBoard}
+      />
       <div className="w-full">
-        <NavBar />
-        <div className="h-[calc(100%-96px)] w-full flex justify-center items-center dark:bg-very-dark-grey">
-          <Button className="bg-main-purple rounded-3xl">
-            + Add New Column
-          </Button>
-        </div>
+        <NavBar
+          setTrigger={setTrigger}
+          db={db}
+          board={board}
+          columns={columns}
+        />
+        <MainBoard db={db} columns={columns} />
       </div>
     </div>
   );
