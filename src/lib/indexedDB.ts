@@ -81,7 +81,7 @@ export const addColumn = async (
   db: IDBDatabase,
   column: Column
 ): Promise<void> => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     try {
       const transaction = db.transaction("columns", "readwrite");
       const store = transaction.objectStore("columns");
@@ -104,16 +104,16 @@ export const getAllColumns = async (
     try {
       const transaction = db.transaction("columns", "readonly");
       const store = transaction.objectStore("columns");
-
-      // Creating an index on boardId if not already created
-      if (!store.indexNames.contains("boardId")) {
-        store.createIndex("boardId", "boardId");
-      }
-
       const index = store.index("boardId");
       const request = index.getAll(boardId);
 
-      request.onsuccess = () => resolve(request.result);
+      request.onsuccess = () => {
+        const columns = request.result.sort(
+          (a: Column, b: Column) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+        resolve(columns);
+      };
       request.onerror = () => reject(request.error);
     } catch (error) {
       reject(error);

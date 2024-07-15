@@ -26,7 +26,7 @@ export default function MainBoard({ columns, db }: MainBoardProps) {
             </p>
             {tasks[column.id]?.map((task) => {
               return (
-                <div className="font-primary font-bold px-4 py-6 rounded-lg w-full dark:bg-dark-grey dark:text-white">
+                <div className="font-primary font-bold px-4 mb-4 py-6 rounded-lg w-full dark:bg-dark-grey dark:text-white">
                   <p className="text-white">{task.taskName}</p>
                 </div>
               );

@@ -32,6 +32,8 @@ export default function SideBar({
   const [boardName, setBoardName] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
 
+  console.log(columns);
+
   function handleChange(index: number, val: string) {
     const temp = columns.map((column: any, i: number) => {
       if (i === index) {
@@ -63,6 +65,7 @@ export default function SideBar({
             id: uuid(),
             boardId: board.id,
             columnName: column.name,
+            createdAt: new Date(),
           });
         }
 
@@ -150,7 +153,15 @@ export default function SideBar({
                 );
               })}
               <Button
-                onClick={(e) => setColumns((prev: any) => [...prev, ""])}
+                onClick={() =>
+                  setColumns((prev) => [
+                    ...prev,
+                    {
+                      id: prev.length,
+                      name: "",
+                    },
+                  ])
+                }
                 className="rounded-2xl hover:bg-white bg-white text-main-purple text-xs font-bold font-primary"
               >
                 + Add New Column

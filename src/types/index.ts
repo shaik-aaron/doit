@@ -9,6 +9,7 @@ export interface Column {
   id: string;
   boardId: string;
   columnName: string;
+  createdAt: Date;
 }
 
 export interface Task {
