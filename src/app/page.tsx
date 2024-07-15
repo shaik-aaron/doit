@@ -8,15 +8,15 @@ import { Board, Column } from "@/types";
 import MainBoard from "@/components/ui/board";
 
 export default function Home() {
-  const [db, setDb] = useState<IDBDatabase | null>(null);
+  const [db, setDb] = useState<IDBDatabase | any>(null);
   const [boards, setBoards] = useState<Board[]>([]);
   const [trigger, setTrigger] = useState<boolean>(false);
-  const [board, setBoard] = useState<Board>();
+  const [board, setBoard] = useState<Board | any>();
 
   const [columns, setColumns] = useState<Column[]>([]);
 
   useEffect(() => {
-    if (board) {
+    if (board && db) {
       getAllColumns(db, board.id).then((data) => setColumns(data));
     }
   }, [board, trigger]);
