@@ -63,7 +63,7 @@ export default function NavBar({
                 <SelectContent>
                   {columns.map((column) => {
                     return (
-                      <SelectItem value={column.id}>
+                      <SelectItem key={column.id} value={column.id}>
                         {column.columnName}
                       </SelectItem>
                     );
